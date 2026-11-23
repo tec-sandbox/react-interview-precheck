@@ -60,7 +60,12 @@ try {
     import('react'), import('react-dom/server')
   ]);
   const { createServer: createViteServer } = await import('vite');
-  const vite = await createViteServer({ server: { middlewareMode: true }, appType: 'custom' });
+  // Short-lived SSR server: skip client dependency discovery so closing it doesn't abort an in-flight scan.
+  const vite = await createViteServer({
+    server: { middlewareMode: true },
+    appType: 'custom',
+    optimizeDeps: { noDiscovery: true, include: [] },
+  });
   try {
     const { default: App } = await vite.ssrLoadModule('/src/App.tsx');
     const html = renderToStaticMarkup(createElement(App));
